@@ -189,10 +189,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             unregister_mods(MOD_BIT(KC_RSFT));
             encoder_action_navpage(clockwise);
             register_mods(MOD_BIT(KC_RSFT));
-        } else if (mods_state & MOD_BIT(KC_LCTL)) {  // if holding Left Ctrl, navigate next/prev word
-            encoder_action_navword(clockwise);
-        } else if (mods_state & MOD_BIT(KC_LALT)) {  // if holding Left Alt, change media next/prev track
+        } else if (mods_state & MOD_BIT(KC_LCTL)) {  // if holding Left Ctrl, change media next/prev track
             encoder_action_mediatrack(clockwise);
+        } else if (mods_state & MOD_BIT(KC_LALT)) {  // if holding Left Alt, navigate next/prev word
+            encoder_action_navword(clockwise);
         } else  {
             switch(get_highest_layer(layer_state)) {
             case _FN1:
