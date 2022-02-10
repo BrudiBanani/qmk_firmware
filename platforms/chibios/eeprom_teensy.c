@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 
+#include "eeprom_teensy.h"
 #include "eeconfig.h"
 
 /*************************************/
@@ -41,18 +42,6 @@
 
 #if defined(K20x) /* chip selection */
 /* Teensy 3.0, 3.1, 3.2; mchck; infinity keyboard */
-
-// The EEPROM is really RAM with a hardware-based backup system to
-// flash memory.  Selecting a smaller size EEPROM allows more wear
-// leveling, for higher write endurance.  If you edit this file,
-// set this to the smallest size your application can use.  Also,
-// due to Freescale's implementation, writing 16 or 32 bit words
-// (aligned to 2 or 4 byte boundaries) has twice the endurance
-// compared to writing 8 bit bytes.
-//
-#    ifndef EEPROM_SIZE
-#        define EEPROM_SIZE 32
-#    endif
 
 /*
     ^^^ Here be dragons:
@@ -350,8 +339,6 @@ void do_flash_cmd(volatile uint8_t *fstat)
 extern uint32_t __eeprom_workarea_start__;
 extern uint32_t __eeprom_workarea_end__;
 
-#    define EEPROM_SIZE 128
-
 static uint32_t flashend = 0;
 
 void eeprom_initialize(void) {
@@ -524,64 +511,7 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len) {
 }
 
 #else
-// No EEPROM supported, so emulate it
-
-#    ifndef EEPROM_SIZE
-#        include "eeconfig.h"
-#        define EEPROM_SIZE (((EECONFIG_SIZE + 3) / 4) * 4)  // based off eeconfig's current usage, aligned to 4-byte sizes, to deal with LTO
-#    endif
-__attribute__((aligned(4))) static uint8_t buffer[EEPROM_SIZE];
-
-uint8_t eeprom_read_byte(const uint8_t *addr) {
-    uint32_t offset = (uint32_t)addr;
-    return buffer[offset];
-}
-
-void eeprom_write_byte(uint8_t *addr, uint8_t value) {
-    uint32_t offset = (uint32_t)addr;
-    buffer[offset]  = value;
-}
-
-uint16_t eeprom_read_word(const uint16_t *addr) {
-    const uint8_t *p = (const uint8_t *)addr;
-    return eeprom_read_byte(p) | (eeprom_read_byte(p + 1) << 8);
-}
-
-uint32_t eeprom_read_dword(const uint32_t *addr) {
-    const uint8_t *p = (const uint8_t *)addr;
-    return eeprom_read_byte(p) | (eeprom_read_byte(p + 1) << 8) | (eeprom_read_byte(p + 2) << 16) | (eeprom_read_byte(p + 3) << 24);
-}
-
-void eeprom_read_block(void *buf, const void *addr, size_t len) {
-    const uint8_t *p    = (const uint8_t *)addr;
-    uint8_t *      dest = (uint8_t *)buf;
-    while (len--) {
-        *dest++ = eeprom_read_byte(p++);
-    }
-}
-
-void eeprom_write_word(uint16_t *addr, uint16_t value) {
-    uint8_t *p = (uint8_t *)addr;
-    eeprom_write_byte(p++, value);
-    eeprom_write_byte(p, value >> 8);
-}
-
-void eeprom_write_dword(uint32_t *addr, uint32_t value) {
-    uint8_t *p = (uint8_t *)addr;
-    eeprom_write_byte(p++, value);
-    eeprom_write_byte(p++, value >> 8);
-    eeprom_write_byte(p++, value >> 16);
-    eeprom_write_byte(p, value >> 24);
-}
-
-void eeprom_write_block(const void *buf, void *addr, size_t len) {
-    uint8_t *      p   = (uint8_t *)addr;
-    const uint8_t *src = (const uint8_t *)buf;
-    while (len--) {
-        eeprom_write_byte(p++, *src++);
-    }
-}
-
+#    error Unsupported Teensy EEPROM.
 #endif /* chip selection */
 // The update functions just calls write for now, but could probably be optimized
 

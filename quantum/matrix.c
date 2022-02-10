@@ -78,6 +78,13 @@ static inline void setPinOutput_writeLow(pin_t pin) {
     }
 }
 
+static inline void setPinOutput_writeHigh(pin_t pin) {
+    ATOMIC_BLOCK_FORCEON {
+        setPinOutput(pin);
+        writePinHigh(pin);
+    }
+}
+
 static inline void setPinInputHigh_atomic(pin_t pin) {
     ATOMIC_BLOCK_FORCEON { setPinInputHigh(pin); }
 }
@@ -137,7 +144,11 @@ static bool select_row(uint8_t row) {
 static void unselect_row(uint8_t row) {
     pin_t pin = row_pins[row];
     if (pin != NO_PIN) {
+#            ifdef MATRIX_UNSELECT_DRIVE_HIGH
+        setPinOutput_writeHigh(pin);
+#            else
         setPinInputHigh_atomic(pin);
+#            endif
     }
 }
 
@@ -196,7 +207,11 @@ static bool select_col(uint8_t col) {
 static void unselect_col(uint8_t col) {
     pin_t pin = col_pins[col];
     if (pin != NO_PIN) {
+#            ifdef MATRIX_UNSELECT_DRIVE_HIGH
+        setPinOutput_writeHigh(pin);
+#            else
         setPinInputHigh_atomic(pin);
+#            endif
     }
 }
 
@@ -252,8 +267,6 @@ __attribute__((weak)) void matrix_read_rows_on_col(matrix_row_t current_matrix[]
 
 void matrix_init(void) {
 #ifdef SPLIT_KEYBOARD
-    split_pre_init();
-
     // Set pinout for right half if pinout for that half is defined
     if (!isLeftHand) {
 #    ifdef DIRECT_PINS_RIGHT
@@ -292,10 +305,6 @@ void matrix_init(void) {
     debounce_init(ROWS_PER_HAND);
 
     matrix_init_quantum();
-
-#ifdef SPLIT_KEYBOARD
-    split_post_init();
-#endif
 }
 
 #ifdef SPLIT_KEYBOARD
