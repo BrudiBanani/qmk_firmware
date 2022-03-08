@@ -54,6 +54,19 @@ If you are using different pinouts for the encoders on each half of a split keyb
 #define ENCODER_RESOLUTIONS_RIGHT { 2, 4 }
 ```
 
+If the `_RIGHT` definitions aren't specified in your `config.h`, then the non-`_RIGHT` versions will be applied to both sides of the split.
+
+Additionally, if one side does not have an encoder, you can specify `{}` for the pins/resolution -- for example, a split keyboard with only a right-side encoder:
+
+```c
+#define ENCODERS_PAD_A { }
+#define ENCODERS_PAD_B { }
+#define ENCODER_RESOLUTIONS { }
+#define ENCODERS_PAD_A_RIGHT { B12 }
+#define ENCODERS_PAD_B_RIGHT { B13 }
+#define ENCODER_RESOLUTIONS_RIGHT { 4 }
+```
+
 ## Callbacks
 
 The callback functions can be inserted into your `<keyboard>.c`:
@@ -85,7 +98,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 }
 ```
 
-!> If you return `true`, this will allow the keyboard level code to run, as well.  Returning `false` will override the keyboard level code.  Depending on how the keyboard level function is set up. 
+!> If you return `true`, it will allow the keyboard level code to run as well. Returning `false` will override the keyboard level code, depending on how the keyboard function is set up. 
 
 Layer conditions can also be used with the callback function like the following:
 
