@@ -14,12 +14,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdint.h>
-#include <stdbool.h>
+#include "atomic_util.h"
 #include "util.h"
+#include "wait.h"
 #include "matrix.h"
 #include "debounce.h"
-#include "quantum.h"
 #ifndef readPort
 #    include "gpio_extr.h"
 #endif
@@ -159,7 +158,7 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
         do {
             MATRIX_DEBUG_DELAY_START();
             is_pressed = false;
-            for (uint8_t i = 0; i < sizeof(delay_ports) / sizeof(pin_t); i++) {
+            for (uint8_t i = 0; i < ARRAY_SIZE(delay_ports); i++) {
 #            ifdef MATRIX_IO_DELAY_MULSEL
                 writePin(MATRIX_MUL_SELECT, delay_sel[i]);
                 waitInputPinDelay();
@@ -295,7 +294,7 @@ void matrix_init(void) {
 
     debounce_init(MATRIX_ROWS);
 
-    matrix_init_quantum();
+    matrix_init_kb();
 }
 
 uint8_t matrix_scan(void) {
@@ -323,7 +322,7 @@ uint8_t matrix_scan(void) {
     MATRIX_DEBUG_GAP();
 
     MATRIX_DEBUG_SCAN_START();
-    matrix_scan_quantum();
+    matrix_scan_kb();
     MATRIX_DEBUG_SCAN_END();
     return (uint8_t)changed;
 }

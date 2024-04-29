@@ -1,6 +1,7 @@
-#include "matrix.h"
+// Copyright 2023 QMK
+// SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "quantum.h"
+#include "matrix.h"
 
 static matrix_row_t read_row(uint8_t row) {
     matrix_io_delay();  // without this wait read unstable value.

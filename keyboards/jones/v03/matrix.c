@@ -14,10 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdint.h>
-#include <stdbool.h>
 #include "matrix.h"
-#include "quantum.h"
 
 #define ROW_SHIFTER ((uint16_t)1)
 
@@ -83,7 +80,7 @@ void matrix_init_custom(void) {
     // initialize key pins
     init_pins();
 
-    matrix_init_quantum();
+    matrix_init_kb();
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
@@ -94,6 +91,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         changed |= read_cols_on_row(current_matrix, current_row);
     }
 
-    matrix_scan_quantum();
+    matrix_scan_kb();
     return changed;
 }
